@@ -1,0 +1,51 @@
+using UnityEngine;
+using static SEmanager;
+
+public class HelpManagerStart : MonoBehaviour
+{
+    public GameObject helpPanel;
+    public GameObject helpPanelH;
+    public GameObject startCtrl;
+    private bool isManual = false;
+    private bool landscape = true;
+
+    void Start()
+    {
+        helpPanel.SetActive(false);
+        helpPanelH.SetActive(false);
+    }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (isManual)
+            {
+                CloseManual();
+            }
+        }
+    }
+
+    public void InitStart(bool islandscape)
+    {
+        if (islandscape) helpPanelH.gameObject.SetActive(false);
+        else helpPanel.gameObject.SetActive(false);
+        this.landscape = islandscape;
+    }
+
+    public void CloseManual()
+    {
+        SEmanager.Instance.PlaySE(SEType.Kyanseru);
+        helpPanel.SetActive(false);
+        helpPanelH.SetActive(false);
+        startCtrl.GetComponent<StartController>().Init();
+        isManual = false;
+    }
+
+    public void OpenHelp()
+    {
+        helpPanel.SetActive(landscape);
+        helpPanelH.SetActive(!landscape);
+        isManual = true;
+    }
+}
