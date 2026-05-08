@@ -1,0 +1,39 @@
+using UnityEngine;
+using static SEmanager;
+
+public class HelpManager : MonoBehaviour
+{
+    public GameObject helpPanel;
+    [SerializeField] private GameObject pause;
+    private bool isManual = false;
+
+    void Start()
+    {
+        helpPanel.SetActive(false);
+    }
+
+        void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            if (isManual)
+            {
+                CloseManual();
+            }
+        }
+    }
+
+    public void CloseManual()
+    {
+        SEmanager.Instance.PlaySE(SEType.Kyanseru);
+        helpPanel.SetActive(false);
+        pause.GetComponent<PauseManager>().Pause();
+        isManual = false;
+    }
+
+    public void OpenHelp()
+    {
+        helpPanel.SetActive(true);
+        isManual = true;
+    }
+}
