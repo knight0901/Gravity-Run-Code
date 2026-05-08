@@ -1,0 +1,94 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using static SEmanager;
+
+public class PauseManager : MonoBehaviour
+{
+    public GameObject PauseMenu; // ポーズ画面のUI（Canvas）
+    [SerializeField] private GameObject helpManager;
+    private GameManager manager;
+    [SerializeField] private GameObject ctrl;
+    [SerializeField] private GameObject settings;
+
+    private bool OnPauseButton;
+    private bool isPaused = false;
+
+    void Start()
+    {
+        manager = GlobalState.gm;
+        OnPauseButton = false;
+        PauseMenu.SetActive(false); // 初期状態で非表示
+    }
+
+    void Update()
+    {
+        if ((Input.GetKeyDown(KeyCode.P) || OnPauseButton) && (manager.gameState == 2 || manager.gameState == 3))
+        {
+            OnPauseButton = false;
+            if (isPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                SEmanager.Instance.PlaySE(SEType.Click);
+                Pause();
+            }
+        }
+    }
+
+    // 再開ボタン
+    public void Resume()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        PauseMenu.SetActive(false);
+        isPaused = false;
+        manager.changeGameState(2);
+    }
+
+    // リスタートボタン
+    public void Restart()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        PauseMenu.SetActive(false);
+        isPaused = false;
+        ctrl.GetComponent<GameController>().ReStart();
+    }
+
+    // コース選択に戻るボタン
+    public void ReturnToStageSelect()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        GlobalState.returnCourse = true;
+        UIController.Instance.StartCoroutine(UIController.Instance.ReturnCourseAnime());
+        // SceneManager.LoadScene("CourseSelection"); // シーン名は実際のものに合わせて
+    }
+
+    // 操作説明ボタン
+    public void ShowHowToPlay()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        helpManager.GetComponent<HelpManager>().OpenHelp();
+        PauseMenu.gameObject.SetActive(false);
+        isPaused = false;
+    }
+
+    // ポーズする
+    public void Pause()
+    {
+        manager.changeGameState(3);
+        PauseMenu.SetActive(true);
+        isPaused = true;
+    }
+
+    public void Settings()
+    {
+        FindFirstObjectByType<AudioSettingsUI>().Open();
+    }
+
+    public void ChangePauseFlg()
+    {
+        OnPauseButton = true;
+    }
+}
