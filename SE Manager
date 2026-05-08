@@ -1,0 +1,84 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+public class SEmanager : MonoBehaviour
+{
+    public enum SEType
+    {
+        Click,
+        Kyanseru,
+        Start,
+        Count,
+        Change,
+        Coin,
+        Damage,
+        Sheild,
+        Item,
+        Heal,
+        Clear,
+        Miss,
+        Box,
+    }
+
+    public static SEmanager Instance;
+
+    [SerializeField] private AudioSource seAudioSource; // SE用AudioSource
+
+    [Header("効果音リスト")]
+    [SerializeField] private AudioClip clickSE;
+    [SerializeField] private AudioClip kyanseruSE;
+    [SerializeField] private AudioClip startSE;
+    [SerializeField] private AudioClip countSE;
+    [SerializeField] private AudioClip changeSE;
+    [SerializeField] private AudioClip coinSE;
+    [SerializeField] private AudioClip damageSE;
+    [SerializeField] private AudioClip sheildSE;
+    [SerializeField] private AudioClip itemSE;
+    [SerializeField] private AudioClip healSE;
+    [SerializeField] private AudioClip clearSE;
+    [SerializeField] private AudioClip missSE;
+    [SerializeField] private AudioClip boxSE;
+
+    private Dictionary<SEType, AudioClip> seDict;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        // Dictionaryにまとめる
+        seDict = new Dictionary<SEType, AudioClip>
+        {
+            { SEType.Click, clickSE },
+            { SEType.Kyanseru, kyanseruSE },
+            { SEType.Start, startSE },
+            { SEType.Count, countSE },
+            { SEType.Change, changeSE },
+            { SEType.Coin, coinSE },
+            { SEType.Damage, damageSE },
+            { SEType.Sheild, sheildSE },
+            { SEType.Item, itemSE },
+            { SEType.Heal, healSE },
+            { SEType.Clear, clearSE },
+            { SEType.Miss, missSE },
+            { SEType.Box, boxSE },
+        };
+    }
+
+    public void PlaySE(SEType type)
+    {
+        if (seDict.TryGetValue(type, out var clip) && clip != null)
+        {
+            seAudioSource.PlayOneShot(clip);
+        }
+    }
+}
+
+
