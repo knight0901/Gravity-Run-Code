@@ -1,0 +1,86 @@
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
+using static SEmanager;
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+
+public class ResultManager : MonoBehaviour
+{
+    private GameManager manager;
+    [SerializeField] private GameObject resultPanel;   // リザルトパネル
+    [SerializeField] private UnityEngine.UI.Image resultImage; // 表示する画像
+    [SerializeField] private Sprite Gameclear;       // クリア画像
+    [SerializeField] private Sprite Gameover;    // ゲームオーバー画像
+    [SerializeField] private Image newImage;
+    [SerializeField] private TMP_Text scoreDetaileText;       // スコア表示用
+    [SerializeField] private TMP_Text scoreText;       // スコア表示用
+
+    void Start()
+    {
+        manager = GlobalState.gm;
+        resultPanel.gameObject.SetActive(false);
+    }
+    public void ShowResult(bool isClear)
+    {
+        StartCoroutine(ShowResultStay(isClear));
+    }
+
+    public void OnRestartButton()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        resultPanel.gameObject.SetActive(false);
+        GameObject.FindFirstObjectByType<GameController>().ReStart();
+    }
+
+    public void OnStageSelectButton()
+    {
+        SEmanager.Instance.PlaySE(SEType.Click);
+        resultPanel.gameObject.SetActive(false);
+        GlobalState.returnCourse = true;
+        UIController.Instance.StartCoroutine(UIController.Instance.ReturnCourseAnime());
+        // SceneManager.LoadScene("CourseSelection"); // ステージ選択シーンへ（別途用意）
+    }
+
+    private IEnumerator ShowResultStay(bool isClear)
+    {
+        yield return WaitForRealtimeSeconds(1f);
+
+        List<long> finalScore = manager.FinalScoreCalcu(isClear);
+
+        resultPanel.SetActive(true); // 表示する
+        if (isClear)
+        {
+            SEmanager.Instance.PlaySE(SEType.Clear);
+            resultImage.sprite = Gameclear; // クリア画像に切り替え
+        }
+        else
+        {
+            SEmanager.Instance.PlaySE(SEType.Miss);
+            resultImage.sprite = Gameover; // ゲームオーバー画像に切り替え
+        }
+
+
+        newImage.gameObject.SetActive(false);
+        if (finalScore[0] > GlobalState.hightScore[GlobalState.courseNumber])
+        {
+            GlobalState.UpdateScore(finalScore[0]);
+            newImage.gameObject.SetActive(true);
+        }
+
+        scoreDetaileText.text = ":"+finalScore[1].ToString()+"\n:"+finalScore[2].ToString()+"\n:"+finalScore[3].ToString();
+        scoreText.text = finalScore[0].ToString();
+
+    }
+    
+        private IEnumerator WaitForRealtimeSeconds(float duration)
+    {
+        float start = UnityEngine.Time.realtimeSinceStartup;
+        while (UnityEngine.Time.realtimeSinceStartup - start < duration)
+            yield return null;
+    }
+
+}
+
